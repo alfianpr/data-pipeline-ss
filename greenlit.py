@@ -36,8 +36,6 @@ df_gantt["timestamp"] = pd.to_datetime("now")
 #cleaning columns
 replace = {' ' : '_', '-' : '_', '.' : '_', '?' : '', '[' : '', ']' : '', '(' : '', ')' : ''}
 
-#df_gantt = df.fillna(0)
-
 def clean_col (col, clean_col):
   col.columns = col.columns.str.lower()
   for i, j in clean_col.items():
