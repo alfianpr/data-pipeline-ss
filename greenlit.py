@@ -9,6 +9,21 @@ scope = ['https://spreadsheets.google.com/feeds',
 df_prodev = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRhcAWkWXIjp2XVAsnTLw13QGg6Ot9D_HBf_FMCA42qIWf034T8oKOgV6cTBJS29tfJRPHPyQ4DQJ6s/pub?gid=1335506491&single=true&output=csv")
 df_prodel = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRhcAWkWXIjp2XVAsnTLw13QGg6Ot9D_HBf_FMCA42qIWf034T8oKOgV6cTBJS29tfJRPHPyQ4DQJ6s/pub?gid=802309967&single=true&output=csv")
 
+SCHEMA = {
+    "last_record" : "datetime64[ns]",
+    "date_leads_acquired" : "datetime64[ns]",
+    "delegation_date" : "datetime64[ns]",
+    "actual_main_activity_start_date" : "datetime64[ns]",
+    "planned_main_activity_start_date" : "datetime64[ns]",
+    "actual_main_activity_end_date" : "datetime64[ns]",
+    "planned_main_activity_end_date" : "datetime64[ns]",
+    "actual_final_report_submitted_date" : "datetime64[ns]",
+    "planned_final_report_submitted_date" : "datetime64[ns]",
+    "actual_project_archived_date" : "datetime64[ns]",
+    "planned_project_archived_date" : "datetime64[ns]",
+    "actual_project_cogs" : "Int64"
+}
+
 cred = {
     "type": "service_account",
     "project_id": "waste4change-362106",
@@ -41,6 +56,7 @@ df_prodev_2 = clean_col(df_prodev, replace)
 df_prodel_2 = df_prodel_2.drop(["unnamed_2", "unnamed_37", "project_name"], axis=1)
 df_prodev_2 = df_prodev_2.drop(["timestamp", "delegation_date"], axis=1)
 df_prodel_2 = df_prodel_2.rename({"timestamp":"last_record"}, axis=1)
+df_prodel_2["actual_project_cogs"] = df_prodel_2["actual_project_cogs"].fillna(0)
 
 # build df_raw
 id = []
@@ -50,21 +66,6 @@ for i in range(len(df_prodev_2["project_name"])):
 df_prodev_2["project_id"] = id
 
 new_df = pd.merge(df_prodel_2, df_prodev_2, on="project_id", how="inner")
-
-SCHEMA = {
-    "last_record" : "datetime64[ns]",
-    "date_leads_acquired" : "datetime64[ns]",
-    "delegation_date" : "datetime64[ns]",
-    "actual_main_activity_start_date" : "datetime64[ns]",
-    "planned_main_activity_start_date" : "datetime64[ns]",
-    "actual_main_activity_end_date" : "datetime64[ns]",
-    "planned_main_activity_end_date" : "datetime64[ns]",
-    "actual_final_report_submitted_date" : "datetime64[ns]",
-    "planned_final_report_submitted_date" : "datetime64[ns]",
-    "actual_project_archived_date" : "datetime64[ns]",
-    "planned_project_archived_date" : "datetime64[ns]",
-
-}
 
 new_df = new_df.astype(SCHEMA)
 
@@ -108,3 +109,5 @@ df_final = pd.concat(
 spreadsheet_key = '1UHxsZ0XP-HdietMUrX38H8bhCb47GsKdp7Lj8Xfy4xc'
 wks_name = 'raw_2'
 d2g.upload(df_final, spreadsheet_key, wks_name, credentials=credentials, row_names=False)
+
+df_final.to_csv("test.csv")
