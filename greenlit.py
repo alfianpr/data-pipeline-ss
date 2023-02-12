@@ -2,6 +2,9 @@ import pandas as pd
 import gspread
 from df2gspread import df2gspread as d2g
 from oauth2client.service_account import ServiceAccountCredentials
+import numpy as np
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
@@ -37,8 +40,7 @@ cred = {
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ss-413%40waste4change-362106.iam.gserviceaccount.com"
 }
 
-credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-    cred, scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_dict(cred, scope)
 gc = gspread.authorize(credentials)
 
 # clean column
@@ -105,6 +107,9 @@ df_final = pd.concat(
                 [df_development, df_preparation, df_active, df_reporting, df_closing], 
                 ignore_index=True)
 
+
+# Fill the Null finish in closing phase with today date
+df_final["finish"].loc[df_final["phase"] == 'Closing'] = df_final.loc[df_final["phase"] == 'Closing']["finish"].replace({np.nan: np.datetime64(date.today() + relativedelta(months=+6))})
 
 spreadsheet_key = '1UHxsZ0XP-HdietMUrX38H8bhCb47GsKdp7Lj8Xfy4xc'
 wks_name = 'raw_2'
