@@ -18,6 +18,20 @@ gc = gspread.authorize(credentials)
 # clean column
 
 replace = {' ' : '_', '-' : '_', '.' : '_', '?' : '', '[' : '', ']' : '', '(' : '', ')' : '', ':' : ''}
+convert_date = {
+  "januari_2023":"1/1/2023",
+  "februari_2023":"2/1/2023",
+  "maret_2023":"3/1/2023", 
+  "april_2023":"4/1/2023",
+  "mei_2023":"5/1/2023",
+  "juni_2023":"6/1/2023",
+  "juli_2023":"7/1/2023",
+  "agustus_2023":"8/1/2023", 
+  "september_2023":"9/1/2023",
+  "oktober_2023":"10/1/2023",
+  "november_2023":"11/1/2023",
+  "desember_2023":"12/1/2023"
+}
 
 def clean_col (col, clean_col):
   col.columns = col.columns.str.lower()
@@ -30,21 +44,15 @@ df_3 = df_2.loc[df_2["new_business"] == "WKE Business"]
 df_4 = df_3[["customer/project_name", "januari_2023", "februari_2023", "maret_2023", 
             "april_2023", "mei_2023", "juni_2023", "juli_2023", "agustus_2023", 
             "september_2023", "oktober_2023", "november_2023", "desember_2023"]]
+df_5 = df_4.melt(id_vars="customer/project_name",
+                  var_name="month",
+                  value_name="revenue").sort_values(["customer/project_name"]).reset_index(drop=True)
+df_6 = df_5.fillna(0)
+df_7 = df_6.replace({"month": convert_date})
+df_7["month"] = pd.to_datetime(df_7["month"])
+df_7["revenue"] = df_7["revenue"].astype(int)
 
-print(df_4)
-
-# df_prodev_2 = df_prodev_2.drop(["timestamp", "delegation_date"], axis=1)
-# #df_prodel_2["actual_project_cogs"] = df_prodel_2["actual_project_cogs"].fillna(0)
-
-# # build df_raw
-# id = []
-# for i in range(len(df_prodev_2["project_name"])):
-#     id.append("PR"+str(format(i+1, '05d')))
-
-# df_prodev_2["project_id"] = id
-# df_prodev_2["timestamp"] = pd.Timestamp('now')
-# #new_df = pd.concat((new_df_1, df_clean), axis=0)
-
-# spreadsheet_key = '1TORE-3APd2dtazoD7wjkg-P2XuFaGo2PmLRk1K4Nui8'
-# wks_name = 'clean'
-# d2g.upload(df_prodev_2, spreadsheet_key, wks_name, clean=True, credentials=credentials, row_names=False)
+print(df_7)
+spreadsheet_key = '1TORE-3APd2dtazoD7wjkg-P2XuFaGo2PmLRk1K4Nui8'
+wks_name = "rct_auto"
+d2g.upload(df_7, spreadsheet_key, wks_name, credentials=credentials, row_names=False)
