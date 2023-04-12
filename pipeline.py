@@ -13,6 +13,7 @@ scope = ['https://spreadsheets.google.com/feeds',
 df_prodev = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRhcAWkWXIjp2XVAsnTLw13QGg6Ot9D_HBf_FMCA42qIWf034T8oKOgV6cTBJS29tfJRPHPyQ4DQJ6s/pub?gid=1335506491&single=true&output=csv")
 df_prodel = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRhcAWkWXIjp2XVAsnTLw13QGg6Ot9D_HBf_FMCA42qIWf034T8oKOgV6cTBJS29tfJRPHPyQ4DQJ6s/pub?gid=802309967&single=true&output=csv")
 df_implementator = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vR0pfMgEgoaH5MV38SxPYONIoNQVyj0Y2j2Aiz_ROGt3Xjcd8zmtMuOHBetfs-U2UKmenZe1c7u5Yp4/pub?gid=2086891367&single=true&output=csv")
+df_clean = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vR0pfMgEgoaH5MV38SxPYONIoNQVyj0Y2j2Aiz_ROGt3Xjcd8zmtMuOHBetfs-U2UKmenZe1c7u5Yp4/pub?output=csv")
 
 SCHEMA = {
     "last_record" : "datetime64[ns]",
@@ -57,11 +58,13 @@ for i in range(len(df_prodev_2["project_name"])):
     id.append("PR"+str(format(i+1, '05d')))
 
 df_prodev_2["project_id"] = id
-new_df = pd.merge(pd.merge(df_prodev_2, df_prodel_2, on="project_id", how="outer"), df_implementator_2, on="project_id", how="outer")
+new_df_1 = pd.merge(pd.merge(df_prodev_2, df_prodel_2, on="project_id", how="outer"), df_implementator_2, on="project_id", how="outer")
 
-new_df = new_df.astype(SCHEMA)
-new_df["timestamp"] = pd.Timestamp('now')
+new_df_1 = new_df_1.astype(SCHEMA)
+new_df_1["timestamp"] = pd.Timestamp('now')
+#new_df = pd.concat((new_df_1, df_clean), axis=0)
+
 
 spreadsheet_key = '1TORE-3APd2dtazoD7wjkg-P2XuFaGo2PmLRk1K4Nui8'
 wks_name = 'clean'
-d2g.upload(new_df, spreadsheet_key, wks_name, clean=True, credentials=credentials, row_names=False)
+d2g.upload(new_df_1, spreadsheet_key, wks_name, clean=True, credentials=credentials, row_names=False)
