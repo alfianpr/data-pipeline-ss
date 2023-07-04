@@ -50,7 +50,7 @@ df_5 = df_4.melt(id_vars="customer/project_name",
 df_6 = df_5.fillna(0)
 df_7 = df_6.replace({"month": convert_date})
 df_7["month"] = pd.to_datetime(df_7["month"])
-df_7["revenue"] = df_7["revenue"].astype(int)
+df_7["revenue"] = df_7["revenue"].astype(str)
 
 print(df_7)
 spreadsheet_key = '1TORE-3APd2dtazoD7wjkg-P2XuFaGo2PmLRk1K4Nui8'
